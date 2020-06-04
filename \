@@ -1,0 +1,287 @@
+<!--A Design by W3layouts
+Author: W3layout
+Author URL: http://w3layouts.com
+License: Creative Commons Attribution 3.0 Unported
+License URL: http://creativecommons.org/licenses/by/3.0/
+-->
+<html>
+<head>
+<title>Welcome to Mingrui Liu's Homepage</title>
+<link href="css/bootstrap.css" rel='stylesheet' type='text/css' />
+<!-- jQuery (necessary JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<!-- Custom Theme files -->
+ <link href="css/dashboard.css" rel="stylesheet">
+<link href="css/style.css" rel='stylesheet' type='text/css' />
+
+<!-- Custom Theme files -->
+<!--//theme-style-->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="Curriculum Vitae Responsive web template, Bootstrap Web Templates, Flat Web Templates, Andriod Compatible web template, 
+Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<link href='http://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+
+<!-- start menu -->
+  
+</head>
+<body>
+<!-- header -->
+<div class="col-sm-3 col-md-2 sidebar">
+		 <div class="sidebar_top">
+			 <h1>Mingrui Liu</h1> 
+			 <a href="photo.html"><img src="images/photo1.jpg" alt=""/></a>
+		 </div>
+		<div class="details">
+			 <h3>PhD Student</h3>
+			 <p>
+             <span>Department of Computer Science</span><br/>
+			 <span>The University of Iowa</span><br/>
+			 <span>Iowa City, 52242</span><br/>
+			 <span>USA</span><br/></p>   
+			 <h3>EMAIL</h3>
+			 <p>mingrui-liu (at) uiowa (dot) edu</p>
+             <p>mingrui (dot) liu (dot) math (dot) sjtu (at) gmail.com </p>
+		</div>
+		<div class="clearfix"></div>
+</div>
+<!---->
+<link href="css/popuo-box.css" rel="stylesheet" type="text/css" media="all"/>
+<script src="js/jquery.magnific-popup.js" type="text/javascript"></script>
+	<!---//pop-up-box---->			
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+	 <div class="content">
+		 <div class="details_header">
+			 <ul>
+				 <li><a href="index.html"><b>Home</b></a></li>
+			<!--	 <li><a href="cv/MingruiLiu_CV.pdf"><b>CV</b></a></li>
+            <li><a href="#"><b>Miscellaneous</b></a></li>-->
+			 </ul>
+		 </div>
+		 
+		 <div class="company">
+			 <h3 class="clr1">About Me</h3>
+			 <div class="company_details">
+                 I am a fourth year PhD student at <a href="https://www.cs.uiowa.edu"><u><font color="#0000FF"> Department of Computer Science</u></a></font>, <a href="http://www.uiowa.edu"><u><font color="#0000FF"> The University of Iowa</u></a></font>. My advisor is <a href="http://homepage.cs.uiowa.edu/~tyng/"><font color="#0000FF"><u>Prof. Tianbao Yang</u></a></font>. 
+                 
+
+            </div>
+        </div>  
+
+
+		 <div class="skills">
+			 <h3 class="clr2">Research</h3>
+			 <div class="skill_info">
+                 My research interests are machine learning, optimization and learning theory.
+		    </div>
+            <!--<div class = "skill_info">
+                I am currently organizing the <a href="seminar.html"><u><font color="#0000FF">machine learning group seminar</u></a></font> at Fall 2017. If any one is interested in giving a talk relevant to machine learning, please drop me an email.
+             </div>-->
+         </div>
+<div class="company">
+                         <h3 class="clr3">News</h3>
+                         <div class="skill_info">
+                         <ul>
+                         <li> (Dec 2019) Two papers were accepted by ICLR 2020.
+                         <br>
+                         </li>
+
+                         <li> (Sep 2018) Three papers were accepted by NeurIPS 2018.
+                         <br>
+                         </li>
+                         <li> (May 2018) One paper was accepted by ICML 2018.
+                         <br>
+                        </li>
+
+                 <ul>
+                         </div>
+                </div>
+
+ <div class="education">
+                         <h3 class="clr1">Preprints</h3>
+                         <div class="skill_info">
+                         <ul>
+                        <li>(<FONT COLOR="#FC0404">New! </font>)
+                         <a href="https://arxiv.org/abs/1910.12999.pdf"><font color="#0000FF">Decentralized Parallel Algorithm for Training Generative Adversarial Nets</font></a><br>
+                         <b>Mingrui Liu</b> Youssef Mroueh, Wei Zhang, Xiaodong Cui, Jerret Ross, Tianbao Yang, Payel Das.<br>
+       arXiv Preprint:1810.10207
+       <br><br>
+     </li>
+
+                         <li>(<FONT COLOR="#FC0404">New! </font>)
+                         <a href="https://arxiv.org/abs/1810.10207.pdf"><font color="#0000FF">Solving Weakly-Convex-Weakly-Concave Saddle Point Problems as Weakly-Monotone Variational Inequality</font></a><br>
+                         with Qihang Lin, Hassan Rafique, Tianbao Yang.<br>
+       arXiv Preprint:1810.10207
+       <br><br>
+     </li>
+    
+                        <li>(<FONT COLOR="#FC0404">New! </font>)
+                         <a href="https://arxiv.org/pdf/1810.02060.pdf"><font color="#0000FF">Non-Convex Min-Max Optimization: Provable Algorithms and Applications in Machine Learning</font></a><br>
+                         Hassan Rafique, <b>Mingrui Liu</b>, Qihang Lin, Tianbao Yang.<br>
+       arXiv Preprint:1810.02060
+       <br><br>
+     </li>
+                         <li>
+                         <a href="https://arxiv.org/abs/1709.08571"><font color="#0000FF">On Noisy Negative Curvature Descent: Competing with Gradient Descent for Faster Non-convex Optimization</font></a><br>
+                         <b>Mingrui Liu</b>, Tianbao Yang.<br>
+			 arXiv Preprint:1709.08571 [a short version has been accepted by NeurIPS 2018]
+                         <br><br>
+                        </li>
+
+                 <ul>
+                         </div>
+                </div>
+
+
+
+         <div class="education">
+			 <h3 class="clr3">Publications</h3>
+			 <div class="skill_info">
+			 <ul>
+                         <li>(<FONT COLOR="#FC0404">New! </font>)
+                         <a href="https://openreview.net/forum?id=HJepXaVYDr"><font color="#0000FF">Stochastic AUC Maximization with Deep Neural Networks</font></a><br>
+                         <b>Mingrui Liu</b>, Zhuoning Yuan, Yiming Ying, Tianbao Yang.<br>
+                    	To Appear at 8th <em>International Conference on Learning Representations</em>, 2020. (<b>ICLR</b> 2020)
+
+       <br><br>
+     </li>
+
+            <li>
+			    	(<FONT COLOR="#FC0404">New! </font>) <a href="https://openreview.net/forum?id=SJxIm0VtwH"><font color="#0000FF">Towards Better Understanding of Adaptive Gradient Algorithms in Generative Adversarial Nets</font></a><br>
+      				<b>Mingrui Liu</b>, Youssef Mroueh, Jerret Ross, Wei Zhang, Xiaodong Cui, Payel Das, Tianbao Yang.<br>
+      				
+      				To Appear at 8th <em>International Conference on Learning Representations</em>, 2020. (<b>ICLR</b> 2020)
+                    <br>
+                                      
+                    <br>
+      			</li>
+            <li>
+			    	<a href="papers/NIPS18_adaNCD.pdf"><font color="#0000FF">Adaptive Negative Curvature Descent with Applications in Non-convex Optimization</font></a><br>
+      				<b>Mingrui Liu</b>, Zhe Li, Xiaoyu Wang, Jinfeng Yi, Tianbao Yang.<br>
+      				
+      				Advances in <em>Neural Information Processing Systems 31</em>, 2018. (<b>NeurIPS</b> 2018)
+                    <br>
+                    [<a href="https://arxiv.org/abs/1709.08571" target="_blank"><font color="#0000FF">arXiv Version</font></a>]
+      			    [<a href="papers/supplement_adaNCD.pdf" target="_blank"><font color="#0000FF">Supplement</font></a>] [<a href="papers/NIPS18_adaNCD_bib.html" target="_blank"><font color="#0000FF">Bibtex</font></a>]  [<a href="papers/adaNCD_poster.pdf" target="_blank"><font color="0000FF">Poster</font></a>] 
+                    <br>
+                    <br>
+      			</li>
+
+            <li>
+			    	<a href="papers/NIPS18_errorBound.pdf"><font color="#0000FF">Fast Rates of ERM and Stochastic Approximation: Adaptive to Error Bound Conditions</font></a><br>
+      				<b>Mingrui Liu</b>, Xiaoxuan Zhang, Lijun Zhang, Rong Jin, Tianbao Yang.<br>
+      				
+      				Advances in <em>Neural Information Processing Systems 31</em>, 2018. (<b>NeurIPS</b> 2018)
+                    <br>
+                    [<a href="https://arxiv.org/abs/1805.04577" target="_blank"><font color="#0000FF">arXiv Version</font></a>] 
+      			   [<a href="papers/supplement_error_bound.pdf" target="_blank"><font color="#0000FF">Supplement</font></a>] [<a href="papers/NIPS18_errorBound_bib.html" target="_blank"><font color="#0000FF">Bibtex</font></a>]  [<a href="papers/errorBound_poster.pdf" target="_blank"><font color="0000FF">Poster</font></a>] 
+                   <br>
+                   <br>
+      			</li>
+
+             <li>
+			    	<a href="papers/NIPS18_F_measure.pdf"><font color="#0000FF">Faster Online Learning of Optimal Threshold for Consistent F-measure Optimization</font></a><br>
+      				<b>Mingrui Liu*</b>, Xiaoxuan Zhang*, Xun Zhou, Tianbao Yang. (*: equal contribution)<br>
+      				
+      			    Advances in <em>Neural Information Processing Systems 31</em>, 2018. (<b>NeurIPS</b> 2018)
+                    <br>
+                    [<a href="papers/supplement_F_measure.pdf" target="_blank"><font color="#0000FF">Supplement</font></a>] 
+                   <br>
+                   <br>
+      			</li>
+
+			    <li>
+			    	<a href="papers/fastAUC_ICML2018.pdf"><font color="#0000FF">Fast Stochastic AUC Maximization with O(1/n) Convergence Rate</font></a><br>
+      				<b>Mingrui Liu</b>, Xiaoxuan Zhang, Zaiyi Chen, Xiaoyu Wang, Tianbao Yang.<br>
+      				Proceedings of the 35th <em>International Conference on Machine Learning 35</em>, 2018. (<b>ICML</b> 2018)
+      				<br>
+                    [<a href="papers/fastAUC_supp.pdf" target="_blank"><font color="#0000FF">Supplement</font></a>] [<a href="papers/fastAUC_ICML18_bib.html" target="_blank"><font color="#0000FF">Bibtex</font></a>]  [<a href="papers/ICML18_AUC_poster.pdf" target="_blank"><font color="0000FF">Poster</font></a>] [<a href="codes/src_FSAUC.zip" target="_blank"><font color="#0000FF">Code</font></a>] <br>
+			<br>
+      			</li>
+
+			    <li>
+			    	<a href="papers/OPT2017_paper_16.pdf"><font color="#0000FF">Stochastic Non-convex Optimization with Strong
+High Probability Second-order Convergence</font></a><br>
+      				<b>Mingrui Liu</b>, Tianbao Yang.<br>
+      				NIPS workshop on Optimization for Machine Learning, 2017.
+      				<br>
+      			    [<a href="https://arxiv.org/pdf/1710.09447" target="_blank"><font color="#0000FF">arXiv Version</font></a>] <br><br>
+      			</li>
+
+			    <li>
+			    	<a href="papers/adaAGC_NIPS_2017.pdf"><font color="#0000FF">Adaptive Accelerated Gradient Converging Methods under Holderian Error Bound Condition</font></a><br>
+      				<b>Mingrui Liu</b>, Tianbao Yang.<br>
+      			    Advances In <em>Neural Information Processing Systems 30</em>, 2017. (<b>NIPS</b> 2017)
+      				<br>
+                    [<a href="papers/supplement_adaAGC_NIPS_2017.pdf" target="_blank"><font color="#0000FF">Supplement</font></a>] [<a href="papers/adaAGC_NIPS_2017_bib.html" target="_blank"><font color="#0000FF">Bibtex</font></a>] [<a href="papers/adaAGC_poster.pdf" target="_blank"><font color="0000FF">Poster</font></a>] [<a href="https://arxiv.org/abs/1611.07609" target="_blank"><font color="#0000FF">arXiv Version</font></a>] <br><br>
+      			</li>
+
+               <li>     
+               	    <a href="papers/adaptiveADMM_NIPS_2017.pdf"><font color="#0000FF">ADMM without a Fixed Penalty Parameter: Faster Convergence with New Adaptive Penalization</font></a><br>
+      				Yi Xu, <b>Mingrui Liu</b>, Qihang Lin, Tianbao Yang.<br>
+      			    Advances In <em>Neural Information Processing Systems 30</em>, 2017. (<b>NIPS</b> 2017)<br>
+                    [<a href="papers/supplement_adaptiveADMM_NIPS_2017.pdf" target="_blank"><font color="#0000FF">Supplement</font></a>] [<a href="papers/adaptiveADMM_NIPS_2017_bib.html" target="_blank"><font color="#0000FF">Bibtex</font></a>] [<a href="papers/NIPS2017-LA-ADMM-poster.pdf" target="_blank"><font color="0000FF">Poster</font></a>] <br><br>
+
+      			</li>
+      		</ul>
+      	    </div>
+      	</div>
+
+        <div class="company">
+            <h3 class="clr1">Working Experience </h3>
+            <div class="company_details">
+                 <li>May 2019--Aug 2019, Research Intern, IBM Research AI, Yorktown Heights, NY, USA
+                    </li>
+                <li>May 2018--Aug 2018, Research Intern, Machine Intelligence Technologies, Alibaba Group, Bellevue, WA, USA
+                    </li>
+
+
+            </div>
+	     <div class="company">
+			 <h3 class="clr2">Miscellaneous</h3>
+			 <div class="company_details">
+			 <ul>
+			 	<!--	
+			    <li>
+			    	<a href="http://homepage.cs.uiowa.edu/~mingrliu/seminar.html"><font color="#0000FF">Machine Learning Group Seminar (FA 2017)</font>,</a> 
+				<a href="http://homepage.cs.uiowa.edu/~yxu71/seminarSP2017.html"><font color="#0000FF">(SP 2017)</font>,</a>
+				<a href="http://homepage.cs.uiowa.edu/~zli79/"><font color="#0000FF">(FA 2016)</font>,</a>
+				<a href="http://homepage.cs.uiowa.edu/~zli79/2016springMachineLearningGroupSeminar.html"><font color="#0000FF">(SP 2016)</font>.</a><br>
+				-->
+      			</li>
+    
+                <li>
+			    	<a href="https://tippie.uiowa.edu/people/qihang-lin"><font color="#0000FF">Prof. Qihang Lin</font></a><br>
+      			</li>
+                <li>
+			    	<a href="http://homepage.cs.uiowa.edu/~yxu71"><font color="#0000FF">Yi Xu</font></a><br>
+      			</li>
+
+      			<li>
+                    <a href="https://zaiyichen.github.io"><font color="#0000FF">Zaiyi Chen</font></a><br>
+      			</li>
+                <li>
+                    <a href="http://homepage.divms.uiowa.edu/~jhajewski"><font color="#0000FF">Jeff Hajewski</font></a><br>
+                    </li>
+                 <li>
+      <a href="http://www.zhuoning.cf"><font color="#0000FF">Zhuoning Yuan</font></a><br>    
+      </li>
+      <li>
+          <a href="https://iemppu.github.io/index.html"><font color="#0000FF">Yan Yan</font></a><br>    
+          </li>
+             </ul>
+      	    </div>
+      	</div>
+     <div class="copywrite">
+			 <p>Last update: 12-09-2019</p>
+		 </div>
+
+
+	 </div>
+
+</div>
+
+</body>
+</html>

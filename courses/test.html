@@ -1,0 +1,623 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    
+      
+
+
+
+
+
+
+    
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>From GAN to WGAN</title>
+    <meta name="description" content="This post explains the maths behind a generative adversarial network (GAN) model and why it is hard to be trained. Wasserstein GAN is intended to improve GAN...">
+
+    <link rel="shortcut icon" href="/lil-log/assets/images/favicon.ico">
+    <link rel="stylesheet" href="/lil-log/assets/css/main.css">
+    <link rel="canonical" href="https://lilianweng.github.io/lil-log/2017/08/20/from-GAN-to-WGAN.html">
+
+    <!-- For Latex -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+    <!-- Google Analytics -->
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-8161570-6', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+    <!-- For Facebook share button -->
+    <div id="fb-root"></div>
+    <script>
+      (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.9";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    </script>
+
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+    <div class="wrapper">
+        
+        <a class="site-title" href="/lil-log/">Lil&#39;Log</a>
+
+        <nav class="site-nav">
+            <a class="page-link" href="http://lilianweng.github.io" target="_blank">&#x1f349; About</a>
+        </nav>
+
+        <nav class="site-nav">
+            <a class="page-link" href="/lil-log/contact.html">&#x1f4ee; Contact</a>
+        </nav>
+
+    </div>
+
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">From GAN to WGAN</h1>
+    <p class="post-meta">
+
+      <time datetime="2017-08-20T00:23:00+00:00" itemprop="datePublished">
+        
+        Aug 20, 2017
+      </time>
+
+      <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+        by <span itemprop="name">Lilian Weng</span>
+      </span>
+
+      <span>
+        
+          
+          <a class="post-tag" href="/lil-log/tag/gan"><nobr>gan</nobr>&nbsp;</a>
+        
+          
+          <a class="post-tag" href="/lil-log/tag/long-read"><nobr>long-read</nobr>&nbsp;</a>
+        
+      </span>
+      <!--
+      <span class="share-buttons">
+        <span class="share-button"><a class="twitter-share-button" href="https://twitter.com/share" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></span>
+
+        <span class="share-button"><span class="fb-like" data-href="/2017/08/20/from-GAN-to-WGAN.html" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="true"></span></span>
+      </span>
+      <div style="clear: both;"/>
+      -->
+
+    </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <blockquote>
+  <p>This post explains the maths behind a generative adversarial network (GAN) model and why it is hard to be trained. Wasserstein GAN is intended to improve GANs’ training by adopting a smooth metric for measuring the distance between two probability distributions.</p>
+</blockquote>
+
+<!--more-->
+
+<p><a href="https://arxiv.org/pdf/1406.2661.pdf">Generative adversarial network</a> (GAN) has shown great results in many generative tasks to replicate the real-world rich content such as images, human language, and music. It is inspired by game theory: two models, a generator and a critic, are competing with each other while making each other stronger at the same time. However, it is rather challenging to train a GAN model, as people are facing issues like training instability or failure to converge.</p>
+
+<p>Here I would like to explain the maths behind the generative adversarial network framework,  why it is hard to be trained, and finally introduce a modified version of GAN intended to solve the training difficulties.</p>
+
+<ul class="table-of-content" id="markdown-toc">
+  <li><a href="#kullbackleibler-and-jensenshannon-divergence" id="markdown-toc-kullbackleibler-and-jensenshannon-divergence">Kullback–Leibler and Jensen–Shannon Divergence</a></li>
+  <li><a href="#generative-adversarial-network-gan" id="markdown-toc-generative-adversarial-network-gan">Generative Adversarial Network (GAN)</a>    <ul>
+      <li><a href="#what-is-the-optimal-value-for-d" id="markdown-toc-what-is-the-optimal-value-for-d">What is the optimal value for D?</a></li>
+      <li><a href="#what-is-the-global-optimal" id="markdown-toc-what-is-the-global-optimal">What is the global optimal?</a></li>
+      <li><a href="#what-does-the-loss-function-represent" id="markdown-toc-what-does-the-loss-function-represent">What does the loss function represent?</a></li>
+    </ul>
+  </li>
+  <li><a href="#problems-in-gans" id="markdown-toc-problems-in-gans">Problems in GANs</a>    <ul>
+      <li><a href="#hard-to-achieve-nash-equilibrium" id="markdown-toc-hard-to-achieve-nash-equilibrium">Hard to achieve Nash equilibrium</a></li>
+      <li><a href="#low-dimensional-supports" id="markdown-toc-low-dimensional-supports">Low dimensional supports</a></li>
+      <li><a href="#vanishing-gradient" id="markdown-toc-vanishing-gradient">Vanishing gradient</a></li>
+      <li><a href="#mode-collapse" id="markdown-toc-mode-collapse">Mode collapse</a></li>
+      <li><a href="#lack-of-a-proper-evaluation-metric" id="markdown-toc-lack-of-a-proper-evaluation-metric">Lack of a proper evaluation metric</a></li>
+    </ul>
+  </li>
+  <li><a href="#improved-gan-training" id="markdown-toc-improved-gan-training">Improved GAN Training</a></li>
+  <li><a href="#wasserstein-gan-wgan" id="markdown-toc-wasserstein-gan-wgan">Wasserstein GAN (WGAN)</a>    <ul>
+      <li><a href="#what-is-wasserstein-distance" id="markdown-toc-what-is-wasserstein-distance">What is Wasserstein distance?</a></li>
+      <li><a href="#why-wasserstein-is-better-than-js-or-kl-divergence" id="markdown-toc-why-wasserstein-is-better-than-js-or-kl-divergence">Why Wasserstein is better than JS or KL divergence?</a></li>
+      <li><a href="#use-wasserstein-distance-as-gan-loss-function" id="markdown-toc-use-wasserstein-distance-as-gan-loss-function">Use Wasserstein distance as GAN loss function</a></li>
+    </ul>
+  </li>
+  <li><a href="#example-create-new-pokemons" id="markdown-toc-example-create-new-pokemons">Example: Create New Pokemons!</a></li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h2 id="kullbackleibler-and-jensenshannon-divergence">Kullback–Leibler and Jensen–Shannon Divergence</h2>
+
+<p>Before we start examining GANs closely, let us first review two metrics for quantifying the similarity between two probability distributions.</p>
+
+<p>(1) <a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">KL (Kullback–Leibler) divergence</a> measures how one probability distribution <script type="math/tex">p</script> diverges from a second expected probability distribution <script type="math/tex">q</script>.</p>
+
+<script type="math/tex; mode=display">D_{KL}(p \| q) = \int_x p(x) \log \frac{p(x)}{q(x)} dx</script>
+
+<p><script type="math/tex">D_{KL}</script> achieves the minimum zero when <script type="math/tex">p(x)</script> == <script type="math/tex">q(x)</script> everywhere.</p>
+
+<p>It is noticeable according to the formula that KL divergence is asymmetric. In cases where <script type="math/tex">p(x)</script> is close to zero, but <script type="math/tex">q(x)</script> is significantly non-zero, the <script type="math/tex">q</script>’s effect is disregarded. It could cause buggy results when we just want to measure the similarity between two equally important distributions.</p>
+
+<p>(2) <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence">Jensen–Shannon Divergence</a> is another measure of similarity between two probability distributions, bounded by <script type="math/tex">[0, 1]</script>. JS divergence is symmetric (yay!) and more smooth. Check this <a href="https://www.quora.com/Why-isnt-the-Jensen-Shannon-divergence-used-more-often-than-the-Kullback-Leibler-since-JS-is-symmetric-thus-possibly-a-better-indicator-of-distance">Quora post</a> if you are interested in reading more about the comparison between KL divergence and JS divergence.</p>
+
+<script type="math/tex; mode=display">D_{JS}(p \| q) = \frac{1}{2} D_{KL}(p \| \frac{p + q}{2}) + \frac{1}{2} D_{KL}(q \| \frac{p + q}{2})</script>
+
+<p style="width: 640px;" class="center"><img src="/lil-log/assets/images/KL_JS_divergence.png" alt="KL and JS divergence" /></p>
+<p><em>Fig. 1. Given two Gaussian distribution, <script type="math/tex">p</script> with mean=0 and std=1 and <script type="math/tex">q</script> with mean=1 and std=1. The average of two distributions is labelled as <script type="math/tex">m=(p+q)/2</script>. KL divergence <script type="math/tex">D_{KL}</script> is asymmetric but JS divergence <script type="math/tex">D_{JS}</script> is symmetric.</em></p>
+
+<p>Some believe (<a href="https://arxiv.org/pdf/1511.05101.pdf">Huszar, 2015</a>) that one reason behind GANs’ big success is switching the loss function from asymmetric KL divergence in traditional maximum-likelihood approach to symmetric JS divergence. We will discuss more on this point in the next section.</p>
+
+<h2 id="generative-adversarial-network-gan">Generative Adversarial Network (GAN)</h2>
+
+<p>GAN consists of two models:</p>
+<ul>
+  <li>A discriminator <script type="math/tex">D</script> estimates the probability of a given sample coming from the real dataset. It works as a critic and is optimized to tell the fake samples from the real ones.</li>
+  <li>A generator <script type="math/tex">G</script> outputs synthetic samples given a noise variable input <script type="math/tex">z</script> (<script type="math/tex">z</script> brings in potential output diversity). It is trained to capture the real data distribution so that its generative samples can be as real as possible, or in other words, can trick the discriminator to offer a high probability.</li>
+</ul>
+
+<p style="width: 600px;" class="center"><img src="/lil-log/assets/images/GAN.png" alt="Generative adversarial network" /></p>
+<p><em>Fig. 2. Architecture of a generative adversarial network. (Image source: <a href="http://www.kdnuggets.com/2017/01/generative-adversarial-networks-hot-topic-machine-learning.html">www.kdnuggets.com/2017/01/generative-…-learning.html</a>)</em></p>
+
+<p>These two models compete against each other during the training process: the generator <script type="math/tex">G</script> is trying hard to trick the discriminator, while the critic model <script type="math/tex">D</script> is trying hard not to be cheated. This interesting zero-sum game between two models motivates both to improve their functionalities.</p>
+
+<p>Given,</p>
+
+<table class="info">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Meaning</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><script type="math/tex">p_{z}</script></td>
+      <td>Data distribution over noise input <script type="math/tex">z</script></td>
+      <td>Usually, just uniform.</td>
+    </tr>
+    <tr>
+      <td><script type="math/tex">p_{g}</script></td>
+      <td>The generator’s distribution over data <script type="math/tex">x</script></td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><script type="math/tex">p_{r}</script></td>
+      <td>Data distribution over real sample <script type="math/tex">x</script></td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>On one hand, we want to make sure the discriminator <script type="math/tex">D</script>’s decisions over real data are accurate by maximizing <script type="math/tex">\mathbb{E}_{x \sim p_{r}(x)} [\log D(x)]</script>. Meanwhile, given a fake sample <script type="math/tex">G(z), z \sim p_z(z)</script>, the discriminator is expected to output a probability, <script type="math/tex">D(G(z))</script>, close to zero by maximizing <script type="math/tex">\mathbb{E}_{z \sim p_{z}(z)} [\log (1 - D(G(z)))]</script>.</p>
+
+<p>On the other hand, the generator is trained to increase the chances of <script type="math/tex">D</script> producing a high probability for a fake example, thus to minimize <script type="math/tex">\mathbb{E}_{z \sim p_{z}(z)} [\log (1 - D(G(z)))]</script>.</p>
+
+<p>When combining both aspects together, <script type="math/tex">D</script> and <script type="math/tex">G</script> are playing a <strong>minimax game</strong> in which we should optimize the following loss function:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned}
+\min_G \max_D L(D, G) 
+& = \mathbb{E}_{x \sim p_{r}(x)} [\log D(x)] + \mathbb{E}_{z \sim p_z(z)} [\log(1 - D(G(z)))] \\
+& = \mathbb{E}_{x \sim p_{r}(x)} [\log D(x)] + \mathbb{E}_{x \sim p_g(x)} [\log(1 - D(x)]
+\end{aligned} %]]></script>
+
+<p>(<script type="math/tex">\mathbb{E}_{x \sim p_{r}(x)} [\log D(x)]</script> has no impact on <script type="math/tex">G</script> during gradient descent updates.)</p>
+
+<h3 id="what-is-the-optimal-value-for-d">What is the optimal value for D?</h3>
+
+<p>Now we have a well-defined loss function. Let’s first examine what is the best value for <script type="math/tex">D</script>.</p>
+
+<script type="math/tex; mode=display">L(G, D) = \int_x \bigg( p_{r}(x) \log(D(x)) + p_g (x) \log(1 - D(x)) \bigg) dx</script>
+
+<p>Since we are interested in what is the best value of <script type="math/tex">D(x)</script> to maximize <script type="math/tex">L(G, D)</script>, let us label</p>
+
+<script type="math/tex; mode=display">\tilde{x} = D(x), 
+A=p_{r}(x), 
+B=p_g(x)</script>
+
+<p>And then what is inside the integral (we can safely ignore the integral because <script type="math/tex">x</script> is sampled over all the possible values) is:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned}
+f(\tilde{x}) 
+& = A log\tilde{x} + B log(1-\tilde{x}) \\
+
+\frac{d f(\tilde{x})}{d \tilde{x}}
+& = A \frac{1}{ln10} \frac{1}{\tilde{x}} - B \frac{1}{ln10} \frac{1}{1 - \tilde{x}} \\
+& = \frac{1}{ln10} (\frac{A}{\tilde{x}} - \frac{B}{1-\tilde{x}}) \\
+& = \frac{1}{ln10} \frac{A - (A + B)\tilde{x}}{\tilde{x} (1 - \tilde{x})} \\
+\end{aligned} %]]></script>
+
+<p>Thus, set <script type="math/tex">\frac{d f(\tilde{x})}{d \tilde{x}} = 0</script>, we get the best value of the discriminator: <script type="math/tex">D^*(x) = \tilde{x}^* = \frac{A}{A + B} = \frac{p_{r}(x)}{p_{r}(x) + p_g(x)} \in [0, 1]</script>.</p>
+
+<p>Once the generator is trained to its optimal, <script type="math/tex">p_g</script> gets very close to <script type="math/tex">p_{r}</script>. When <script type="math/tex">p_g = p_{r}</script>, <script type="math/tex">D^*(x)</script> becomes <script type="math/tex">1/2</script>.</p>
+
+<h3 id="what-is-the-global-optimal">What is the global optimal?</h3>
+
+<p>When both <script type="math/tex">G</script> and <script type="math/tex">D</script> are at their optimal values, we have <script type="math/tex">p_g = p_{r}</script> and <script type="math/tex">D^*(x) = 1/2</script> and the loss function becomes:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned}
+L(G, D^*) 
+&= \int_x \bigg( p_{r}(x) \log(D^*(x)) + p_g (x) \log(1 - D^*(x)) \bigg) dx \\
+&= \log \frac{1}{2} \int_x p_{r}(x) dx + \log \frac{1}{2} \int_x p_g(x) dx \\
+&= -2\log2
+\end{aligned} %]]></script>
+
+<h3 id="what-does-the-loss-function-represent">What does the loss function represent?</h3>
+
+<p>According to the formula listed in the <a href="/lil-log/2017/08/20/from-GAN-to-WGAN.html#kullbackleibler-and-jensenshannon-divergence">previous section</a>, JS divergence between <script type="math/tex">p_{r}</script> and <script type="math/tex">p_g</script> can be computed as:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned}
+D_{JS}(p_{r} \| p_g) 
+=& \frac{1}{2} D_{KL}(p_{r} || \frac{p_{r} + p_g}{2}) + \frac{1}{2} D_{KL}(p_{r} || \frac{p_{r} + p_g}{2}) \\
+=& \frac{1}{2} \bigg( \log2 + \int_x p_{r}(x) \log \frac{p_{r}(x)}{p_{r} + p_g(x)} dx \bigg) + \\& \frac{1}{2} \bigg( \log2 + \int_x p_g(x) \log \frac{p_g(x)}{p_{r} + p_g(x)} dx \bigg) \\
+=& \frac{1}{2} \bigg( \log4 + L(G, D^*) \bigg)
+\end{aligned} %]]></script>
+
+<p>Thus,</p>
+
+<script type="math/tex; mode=display">L(G, D^*) = 2D_{JS}(p_{r} \| p_g) - 2\log2</script>
+
+<p>Essentially the loss function of GAN quantifies the similarity between the generative data distribution <script type="math/tex">p_g</script> and the real sample distribution <script type="math/tex">p_{r}</script> by JS divergence when the discriminator is optimal. The best <script type="math/tex">G^*</script> that replicates the real data distribution leads to the minimum <script type="math/tex">L(G^*, D^*) = -2\log2</script> which is aligned with equations above.</p>
+
+<blockquote>
+  <p><strong>Other Variations of GAN</strong>: There are many variations of GANs in different contexts or designed for different tasks. For example, for semi-supervised learning, one idea is to update the discriminator to output real class labels, <script type="math/tex">1, \dots, K-1</script>, as well as one fake class label <script type="math/tex">K</script>. The generator model aims to trick the discriminator to output a classification label smaller than <script type="math/tex">K</script>.</p>
+</blockquote>
+
+<p><strong>Tensorfor Implementation</strong>: <a href="https://github.com/carpedm20/DCGAN-tensorflow">carpedm20/DCGAN-tensorflow</a></p>
+
+<h2 id="problems-in-gans">Problems in GANs</h2>
+
+<p>Although GAN has shown great success in the realistic image generation, the training is not easy; The process is known to be slow and unstable.</p>
+
+<h3 id="hard-to-achieve-nash-equilibrium">Hard to achieve Nash equilibrium</h3>
+
+<p><a href="http://papers.nips.cc/paper/6125-improved-techniques-for-training-gans.pdf">Salimans et al. (2016)</a> discussed the problem with GAN’s gradient-descent-based training procedure. Two models are trained simultaneously to find a <a href="https://en.wikipedia.org/wiki/Nash_equilibrium">Nash equilibrium</a> to a two-player non-cooperative game. However, each model updates its cost independently with no respect to another player in the game. Updating the gradient of both models concurrently cannot guarantee a convergence.</p>
+
+<p>Let’s check out a simple example to better understand why it is difficult to find a Nash equilibrium in an non-cooperative game. Suppose one player takes control of <script type="math/tex">x</script> to minimize <script type="math/tex">f_1(x) = xy</script>, while at the same time the other player constantly updates <script type="math/tex">y</script> to minimize <script type="math/tex">f_2(y) = -xy</script>.</p>
+
+<p>Because <script type="math/tex">\frac{\partial f_1}{\partial x} = y</script> and <script type="math/tex">\frac{\partial f_2}{\partial y} = -x</script>, we update <script type="math/tex">x</script> with <script type="math/tex">x-\eta \cdot y</script> and <script type="math/tex">y</script> with <script type="math/tex">y+ \eta \cdot x</script> simulitanously in one iteration, where <script type="math/tex">\eta</script> is the learning rate. Once <script type="math/tex">x</script> and <script type="math/tex">y</script> have different signs, every following gradient update causes huge oscillation and the instability gets worse in time, as shown in Fig. 3.</p>
+
+<p style="width: 660px;" class="center"><img src="/lil-log/assets/images/nash_equilibrium.png" alt="Nash equilibrium example" /></p>
+<p><em>Fig. 3. A simulation of our example for updating <script type="math/tex">x</script> to minimize <script type="math/tex">xy</script> and updating <script type="math/tex">y</script> to minimize <script type="math/tex">-xy</script>. The learning rate <script type="math/tex">\eta = 0.1</script>. With more iterations, the oscillation grows more and more unstable.</em></p>
+
+<h3 id="low-dimensional-supports">Low dimensional supports</h3>
+
+<table class="info">
+  <thead>
+    <tr>
+      <th>Term</th>
+      <th>Explanation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Manifold">Manifold</a></td>
+      <td>A topological space that locally resembles Euclidean space near each point. Precisely, when this Euclidean space is of <strong>dimension <script type="math/tex">n</script></strong>, the manifold is referred as <strong><script type="math/tex">n</script>-manifold</strong>.</td>
+    </tr>
+    <tr>
+      <td><a href="https://en.wikipedia.org/wiki/Support_(mathematics)">Support</a></td>
+      <td>A real-valued function <script type="math/tex">f</script> is the subset of the domain containing those elements which are not mapped to <strong>zero</strong>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><a href="https://arxiv.org/pdf/1701.04862.pdf">Arjovsky and Bottou (2017)</a> discussed the problem of the <a href="https://en.wikipedia.org/wiki/Support_(mathematics)">supports</a> of <script type="math/tex">p_r</script> and <script type="math/tex">p_g</script> lying on low dimensional <a href="https://en.wikipedia.org/wiki/Manifold">manifolds</a> and how it contributes to the instability of GAN training thoroughly in a very theoretical paper <a href="https://arxiv.org/pdf/1701.04862.pdf">“Towards principled methods for training generative adversarial networks”</a>.</p>
+
+<p>The dimensions of many real-world datasets, as represented by <script type="math/tex">p_r</script>, only appear to be <strong>artificially high</strong>. They have been found to concentrate in a lower dimensional manifold. This is actually the fundamental assumption for <a href="http://scikit-learn.org/stable/modules/manifold.html">Manifold Learning</a>. Thinking of the real world images, once the theme or the contained object is fixed, the images have a lot of restrictions to follow, i.e., a dog should have two ears and a tail, and a skyscraper should have a straight and tall body, etc. These restrictions keep images aways from the possibility of having a high-dimensional free form.</p>
+
+<p><script type="math/tex">p_g</script> lies in a low dimensional manifolds, too. Whenever the generator is asked to a much larger image like 64x64 given a small dimension, such as 100, noise variable input <script type="math/tex">z</script>, the distribution of colors over these 4096 pixels has been defined by the small 100-dimension random number vector and can hardly fill up the whole high dimensional space.</p>
+
+<p>Because both <script type="math/tex">p_g</script> and <script type="math/tex">p_r</script> rest in low dimensional manifolds, they are almost certainly gonna be disjoint (See Fig. 4). When they have disjoint supports, we are always capable of finding a perfect discriminator that separates real and fake samples 100% correctly. Check the <a href="https://arxiv.org/pdf/1701.04862.pdf">paper</a> if you are curious about the proof.</p>
+
+<p style="width: 640px;" class="center"><img src="/lil-log/assets/images/low_dim_manifold.png" alt="Low dimensional manifolds in high dimension space" /></p>
+<p><em>Fig. 4. Low dimensional manifolds in high dimension space can hardly have overlaps. (Left) Two lines in a three-dimension space. (Right) Two surfaces in a three-dimension space.</em></p>
+
+<h3 id="vanishing-gradient">Vanishing gradient</h3>
+
+<p>When the discriminator is perfect, we are guaranteed with <script type="math/tex">D(x) = 1, \forall x \in p_r</script> and <script type="math/tex">D(x) = 0, \forall x \in p_g</script>. Therefore the loss function <script type="math/tex">L</script> falls to zero and we end up with no gradient to update the loss during learning iterations. Fig. 5 demonstrates an experiment when the discriminator gets better, the gradient vanishes fast.</p>
+
+<p style="width: 480px;" class="center"><img src="/lil-log/assets/images/GAN_vanishing_gradient.png" alt="Low dimensional manifolds in high dimension space" /></p>
+<p><em>Fig. 5. First, a DCGAN is trained for 1, 10 and 25 epochs. Then, with the <strong>generator fixed</strong>, a discriminator is trained from scratch and measure the gradients with the original cost function. We see the gradient norms <strong>decay quickly</strong> (in log scale), in the best case 5 orders of magnitude after 4000 discriminator iterations. (Image source: <a href="https://arxiv.org/pdf/1701.04862.pdf">Arjovsky and Bottou, 2017</a>)</em></p>
+
+<p>As a result, training a GAN faces a <strong>dilemma</strong>:</p>
+<ul>
+  <li>If the discriminator behaves badly, the generator does not have accurate feedback and the loss function cannot represent the reality.</li>
+  <li>If the discriminator does a great job, the gradient of the loss function drops down to close to zero and the learning becomes super slow or even jammed.</li>
+</ul>
+
+<p>This dilemma clearly is capable to make the GAN training very tough.</p>
+
+<h3 id="mode-collapse">Mode collapse</h3>
+
+<p>During the training, the generator may collapse to a setting where it always produces same outputs. This is a common failure case for GANs, commonly referred to as <strong>Mode Collapse</strong>. Even though the generator might be able to trick the corresponding discriminator, it fails to learn to represent the complex real-world data distribution and gets stuck in a small space with extremely low variety.</p>
+
+<p style="width: 720px;" class="center"><img src="/lil-log/assets/images/mode_collapse.png" alt="Mode collapse in GAN" /></p>
+<p><em>Fig. 6. A DCGAN model is trained with an MLP network with 4 layers, 512 units and ReLU activation function, configured to lack a strong inductive bias for image generation. The results shows a significant degree of mode collapse. (Image source: <a href="https://arxiv.org/pdf/1701.07875.pdf">Arjovsky, Chintala, &amp; Bottou, 2017.</a>)</em></p>
+
+<h3 id="lack-of-a-proper-evaluation-metric">Lack of a proper evaluation metric</h3>
+
+<p>Generative adversarial networks are not born with a good objection function that can inform us the training progress. Without a good evaluation metric, it is like working in the dark. No good sign to tell when to stop; No good indicator to compare the performance of multiple models.</p>
+
+<h2 id="improved-gan-training">Improved GAN Training</h2>
+
+<p>The following suggestions are proposed to help stabilize and improve the training of GANs.</p>
+
+<p>First five methods are practical techniques to achieve faster convergence of GAN training, proposed in <a href="http://papers.nips.cc/paper/6125-improved-techniques-for-training-gans.pdf">“Improve Techniques for Training GANs”</a>.
+The last two are proposed in <a href="https://arxiv.org/pdf/1701.04862.pdf">“Towards principled methods for training generative adversarial networks”</a> to solve the problem of disjoint distributions.</p>
+
+<p>(1) <strong>Feature Matching</strong></p>
+
+<p>Feature matching suggests to optimize the discriminator to inspect whether the generator’s output matches expected statistics of the real samples. In such a scenario, the new loss function is defined as <script type="math/tex">\| \mathbb{E}_{x \sim p_r} f(x) - \mathbb{E}_{z \sim p_z(z)}f(G(z)) \|_2^2</script>, where <script type="math/tex">f(x)</script> can be any computation of statistics of features, such as mean or median.</p>
+
+<p>(2) <strong>Minibatch Discrimination</strong></p>
+
+<p>With minibatch discrimination, the discriminator is able to digest the relationship between training data points in one batch, instead of processing each point independently.</p>
+
+<p>In one minibatch, we approximate the closeness between every pair of samples, <script type="math/tex">c(x_i, x_j)</script>, and get the overall summary of one data point by summing up how close it is to other samples in the same batch, <script type="math/tex">o(x_i) = \sum_{j} c(x_i, x_j)</script>. Then <script type="math/tex">o(x_i)</script> is explicitly added to the input of the model.</p>
+
+<p>(3) <strong>Historical Averaging</strong></p>
+
+<p>For both models, add <script type="math/tex">\| \Theta - \frac{1}{t} \sum_{i=1}^t \Theta_i \|^2</script> into the loss function, where <script type="math/tex">\Theta</script> is the model parameter and <script type="math/tex">\Theta_i</script> is how the parameter is configured at the past training time <script type="math/tex">i</script>. This addition piece penalizes the training speed when <script type="math/tex">\Theta</script> is changing too dramatically in time.</p>
+
+<p>(4) <strong>One-sided Label Smoothing</strong></p>
+
+<p>When feeding the discriminator, instead of providing 1 and 0 labels, use soften values such as 0.9 and 0.1. It is shown to reduce the networks’ vulnerability.</p>
+
+<p>(5) <strong>Virtual Batch Normalization</strong> (VBN)</p>
+
+<p>Each data sample is normalized based on a fixed batch (<em>“reference batch”</em>) of data rather than within its minibatch. The reference batch is chosen once at the beginning and stays the same through the training.</p>
+
+<p><strong>Theano Implementation</strong>: <a href="https://github.com/openai/improved-gan">openai/improved-gan</a></p>
+
+<p>(6) <strong>Adding Noises</strong>.</p>
+
+<p>Based on the discussion in the <a href="/lil-log/2017/08/20/from-GAN-to-WGAN.html#low-dimensional-supports">previous section</a>, we now know <script type="math/tex">p_r</script> and <script type="math/tex">p_g</script> are disjoint in a high dimensional space and it causes the problem of vanishing gradient. To artificially “spread out” the distribution and to create higher chances for two probability distributions to have overlaps, one solution is to add continuous noises onto the inputs of the discriminator <script type="math/tex">D</script>.</p>
+
+<p>(7) <strong>Use Better Metric of Distribution Similarity</strong></p>
+
+<p>The loss function of the vanilla GAN measures the JS divergence between the distributions of <script type="math/tex">p_r</script> and <script type="math/tex">p_r</script>. This metric fails to provide a meaningful value when two distributions are disjoint.</p>
+
+<p><a href="https://en.wikipedia.org/wiki/Wasserstein_metric">Wasserstein metric</a> is proposed to replace JS divergence because it has a much smoother value space. See more in the next section.</p>
+
+<h2 id="wasserstein-gan-wgan">Wasserstein GAN (WGAN)</h2>
+
+<h3 id="what-is-wasserstein-distance">What is Wasserstein distance?</h3>
+
+<p><a href="https://en.wikipedia.org/wiki/Wasserstein_metric">Wasserstein Distance</a> is a measure of the distance between two probability distributions.
+It is also called <strong>Earth Mover’s distance</strong>, short for EM distance, because informally it can be interpreted as moving piles of dirt that follow one probability distribution at a minimum cost to follow the other distribution. The cost is quantified by the amount of dirt moved times the moving distance.</p>
+
+<!-- 
+https://en.wikipedia.org/wiki/Hungarian_algorithm
+https://en.wikipedia.org/wiki/Transportation_theory_(mathematics)
+-->
+
+<p>Let us first look at a simple case where the probability domain is <em>discrete</em>. For example, suppose we have two distributions <script type="math/tex">P</script> and <script type="math/tex">Q</script>, each has four piles of dirt and both have ten shovelfuls of dirt in total. The numbers of shovelfuls in each dirt pile are assigned as follows:</p>
+
+<script type="math/tex; mode=display">P_1 = 3, P_2 = 2, P_3 = 1, P_4 = 4\\
+Q_1 = 1, Q_2 = 2, Q_3 = 4, Q_4 = 3</script>
+
+<p>In order to change <script type="math/tex">P</script> to look like <script type="math/tex">Q</script>, as illustrated in Fig. x, we:</p>
+<ul>
+  <li>First move 2 shovelfuls from <script type="math/tex">P_1</script> to <script type="math/tex">P_2</script> =&gt; <script type="math/tex">(P_1, Q_1)</script> match up.</li>
+  <li>Then move 2 shovelfuls from <script type="math/tex">P_2</script> to <script type="math/tex">P_3</script> =&gt; <script type="math/tex">(P_2, Q_2)</script> match up.</li>
+  <li>Finally move 1 shovelfuls from <script type="math/tex">Q_3</script> to <script type="math/tex">Q_4</script> =&gt; <script type="math/tex">(P_3, Q_3)</script> and <script type="math/tex">(P_4, Q_4)</script> match up.</li>
+</ul>
+
+<p>If we label the cost to pay to make <script type="math/tex">P_i</script> and <script type="math/tex">Q_i</script> match as <script type="math/tex">\delta_i</script>, we would have <script type="math/tex">\delta_{i+1} = \delta_i + P_i - Q_i</script> and in the example:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned}
+\delta_0 &= 0\\
+\delta_1 &= 0 + 3 - 1 = 2\\
+\delta_2 &= 2 + 2 - 2 = 2\\
+\delta_3 &= 2 + 1 - 4 = -1\\
+\delta_4 &= -1 + 4 - 3 = 0
+\end{aligned} %]]></script>
+
+<p>Finally the Earth Mover’s distance is <script type="math/tex">W = \sum \vert \delta_i \vert = 5</script>.</p>
+
+<p class="center"><img src="/lil-log/assets/images/EM_distance_discrete.png" alt="EM distance for discrete case" /></p>
+<p><em>Fig. 7. Step-by-step plan of moving dirt between piles in <script type="math/tex">P</script> and <script type="math/tex">Q</script> to make them match.</em></p>
+
+<p>When dealing with the continuous probability domain, the distance formula becomes:</p>
+
+<script type="math/tex; mode=display">W(p_r, p_g) = \inf_{\gamma \sim \Pi(p_r, p_g)} \mathbb{E}_{(x, y) \sim \gamma}[\| x-y \|]</script>
+
+<p>In the formula above, <script type="math/tex">\Pi(p_r, p_g)</script> is the set of all possible joint probability distributions between <script type="math/tex">p_r</script> and <script type="math/tex">p_g</script>. One joint distribution <script type="math/tex">\gamma \in \Pi(p_r, p_g)</script> describes one dirt transport plan, same as the discrete example above, but in the continuous probability space. Precisely <script type="math/tex">\gamma(x, y)</script> states the percentage of dirt should be transported from point <script type="math/tex">x</script> to <script type="math/tex">y</script> so as to make <script type="math/tex">x</script> follows the same probability distribution of <script type="math/tex">y</script>. That’s why the marginal distribution over <script type="math/tex">x</script> adds up to <script type="math/tex">p_g</script>, <script type="math/tex">\sum_{x} \gamma(x, y) = p_g(y)</script> (Once we finish moving the planned amount of dirt from every possible <script type="math/tex">x</script> to the target <script type="math/tex">y</script>, we end up with exactly what <script type="math/tex">y</script> has according to <script type="math/tex">p_g</script>.) and vice versa <script type="math/tex">\sum_{y} \gamma(x, y) = p_r(x)</script>.</p>
+
+<p>When treating <script type="math/tex">x</script> as the starting point and <script type="math/tex">y</script> as the destination, the total amount of dirt moved is <script type="math/tex">\gamma(x, y)</script> and the travelling distance is <script type="math/tex">\| x-y \|</script> and thus the cost is <script type="math/tex">\gamma(x, y) \cdot \| x-y \|</script>. The expected cost averaged across all the <script type="math/tex">(x,y)</script> pairs can be easily computed as:</p>
+
+<script type="math/tex; mode=display">\sum_{x, y} \gamma(x, y) \| x-y \| 
+= \mathbb{E}_{x, y \sim \gamma} \| x-y \|</script>
+
+<p>Finally, we take the minimum one among the costs of all dirt moving solutions as the EM distance. In the definition of Wasserstein distance, the <script type="math/tex">\inf</script> (<a href="https://en.wikipedia.org/wiki/Infimum_and_supremum">infimum</a>, also known as <em>greatest lower bound</em>) indicates that we are only interested in the smallest cost.</p>
+
+<h3 id="why-wasserstein-is-better-than-js-or-kl-divergence">Why Wasserstein is better than JS or KL divergence?</h3>
+
+<p>Even when two distributions are located in lower dimensional manifolds without overlaps, Wasserstein distance can still provide a meaningful and smooth representation of the distance in-between.</p>
+
+<p>The WGAN paper exemplified the idea with a simple example.</p>
+
+<p>Suppose we have two probability distributions, <script type="math/tex">P</script> and <script type="math/tex">Q</script>:</p>
+
+<script type="math/tex; mode=display">\forall (x, y) \in P, x = 0 \text{ and } y \sim U(0, 1)\\
+\forall (x, y) \in Q, x = \theta, 0 \leq \theta \leq 1 \text{ and } y \sim U(0, 1)\\</script>
+
+<p style="width: 480px;" class="center"><img src="/lil-log/assets/images/wasserstein_simple_example.png" alt="Simple example" /></p>
+<p><em>Fig. 8. There is no overlap between <script type="math/tex">P</script> and <script type="math/tex">Q</script> when <script type="math/tex">\theta \neq 0</script>.</em></p>
+
+<p>When <script type="math/tex">\theta \neq 0</script>:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned}
+D_{KL}(P \| Q) &= \sum_{x=0, y \sim U(0, 1)} 1 \cdot \log\frac{1}{0} = +\infty \\
+D_{KL}(Q \| P) &= \sum_{x=\theta, y \sim U(0, 1)} 1 \cdot \log\frac{1}{0} = +\infty \\
+D_{JS}(P, Q) &= \frac{1}{2}(\sum_{x=0, y \sim U(0, 1)} 1 \cdot \log\frac{1}{1/2} + \sum_{x=0, y \sim U(0, 1)} 1 \cdot \log\frac{1}{1/2}) = \log 2\\
+W(P, Q) &= |\theta|
+\end{aligned} %]]></script>
+
+<p>But when <script type="math/tex">\theta = 0</script>, two distributions are fully overlapped:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned}
+D_{KL}(P \| Q) &= D_{KL}(Q \| P) = D_{JS}(P, Q) = 0\\
+W(P, Q) &= 0 = \lvert \theta \rvert
+\end{aligned} %]]></script>
+
+<p><script type="math/tex">D_{KL}</script> gives us inifity when two distributions are disjoint. The value of <script type="math/tex">D_{JS}</script> has sudden jump, not differentiable at <script type="math/tex">\theta = 0</script>. Only Wasserstein metric provides a smooth measure, which is super helpful for a stable learning process using gradient descents.</p>
+
+<h3 id="use-wasserstein-distance-as-gan-loss-function">Use Wasserstein distance as GAN loss function</h3>
+
+<p>It is intractable to exhaust all the possible joint distributions in <script type="math/tex">\Pi(p_r, p_g)</script> to compute <script type="math/tex">\inf_{\gamma \sim \Pi(p_r, p_g)}</script>. Thus the authors proposed a smart transformation of the formula based on the Kantorovich-Rubinstein duality to:</p>
+
+<script type="math/tex; mode=display">W(p_r, p_g) = \frac{1}{K} \sup_{\| f \|_L \leq K} \mathbb{E}_{x \sim p_r}[f(x)] - \mathbb{E}_{x \sim p_g}[f(x)]</script>
+
+<p>where <script type="math/tex">\sup</script> (<a href="https://en.wikipedia.org/wiki/Infimum_and_supremum">supremum</a>) is the opposite of <script type="math/tex">inf</script> (infimum); we want to measure the least upper bound or, in even simpler words, the maximum value.</p>
+
+<p><strong>Lipschitz continuity?</strong></p>
+
+<p>The function <script type="math/tex">f</script> in the new form of Wasserstein metric is demanded to satisfy <script type="math/tex">\| f \|_L \leq K</script>, meaning it should be <a href="https://en.wikipedia.org/wiki/Lipschitz_continuity">K-Lipschitz continuous</a>.</p>
+
+<p>A real-valued function <script type="math/tex">f: \mathbb{R} \rightarrow \mathbb{R}</script> is called <script type="math/tex">K</script>-Lipschitz continuous if there exists a real constant <script type="math/tex">K \geq 0</script> such that, for all <script type="math/tex">x_1, x_2 \in \mathbb{R}</script>,</p>
+
+<script type="math/tex; mode=display">\lvert f(x_1) - f(x_2) \rvert \leq K \lvert x_1 - x_2 \rvert</script>
+
+<p>Functions that are everywhere continuously differentiable is Lipschitz continuous, because the derivative, estimated as <script type="math/tex">\frac{\lvert f(x_1) - f(x_2) \rvert}{\lvert x_1 - x_2 \rvert}</script>, has bounds. However, a Lipschitz continuous function may not be everywhere differentiable, such as <script type="math/tex">f(x) = \lvert x \rvert</script>.</p>
+
+<p>Explaining how the transformation happens on the Wasserstein distance formula is worthy of a long post by itself, so I skip the details here. If you are interested in how to compute Wasserstein metric using linear programming, or how to transfer Wasserstein metric into its dual form according to the Kantorovich-Rubinstein Duality, read this <a href="https://vincentherrmann.github.io/blog/wasserstein/">awesome post</a>.</p>
+
+<p>Suppose this function <script type="math/tex">f</script> comes from a family of K-Lipschitz continuous functions, <script type="math/tex">\{ f_w \}_{w \in W}</script>, parameterized by <script type="math/tex">w</script>. In the modified Wasserstein-GAN, the “discriminator” model is used to learn <script type="math/tex">w</script> to find a good <script type="math/tex">f_w</script> and the loss function is configured as measuring the Wasserstein distance between <script type="math/tex">p_r</script> and <script type="math/tex">p_g</script>.</p>
+
+<script type="math/tex; mode=display">L(p_r, p_g) = W(p_r, p_g) = \max_{w \in W} \mathbb{E}_{x \sim p_r}[f_w(x)] - \mathbb{E}_{z \sim p_r(z)}[f_w(g_\theta(z))]</script>
+
+<p>Thus the “discriminator” is not a direct critic of telling the fake samples apart from the real ones anymore. Instead, it is trained to learn a <script type="math/tex">K</script>-Lipschitz continuous function to help compute Wasserstein distance. As the loss function decreases in the training, the Wasserstein distance gets smaller and the generator model’s output grows closer to the real data distribution.</p>
+
+<p>One big problem is to maintain the <script type="math/tex">K</script>-Lipschitz continuity of <script type="math/tex">f_w</script> during the training in order to make everything work out. The paper presents a simple but very practical trick: After every gradient update, clamp the weights <script type="math/tex">w</script> to a small window, such as <script type="math/tex">[-0.01, 0.01]</script>, resulting in a compact parameter space <script type="math/tex">W</script> and thus <script type="math/tex">f_w</script> obtains its lower and upper bounds to preserve the Lipschitz continuity.</p>
+
+<p style="width: 640px;" class="center"><img src="/lil-log/assets/images/WGAN_algorithm.png" alt="Simple example" /></p>
+<p><em>Fig. 9. Algorithm of Wasserstein generative adversarial network. (Image source: <a href="https://arxiv.org/pdf/1701.07875.pdf">Arjovsky, Chintala, &amp; Bottou, 2017.</a>)</em></p>
+
+<p>Compared to the original GAN algorithm, the WGAN undertakes the following changes:</p>
+<ul>
+  <li>After every gradient update on the critic function, clamp the weights to a small fixed range, <script type="math/tex">[-c, c]</script>.</li>
+  <li>Use a new loss function derived from the Wasserstein distance, no logarithm anymore. The “discriminator” model does not play as a direct critic but a helper for estimating the Wasserstein metric between real and generated data distribution.</li>
+  <li>Empirically the authors recommended <a href="http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf">RMSProp</a> optimizer on the critic, rather than a momentum based optimizer such as <a href="https://arxiv.org/abs/1412.6980v8">Adam</a> which could cause instability in the model training. I haven’t seen clear theoretical explanation on this point through.</li>
+</ul>
+
+<hr />
+
+<p>Sadly, Wasserstein GAN is not perfect. Even the authors of the original WGAN paper mentioned that <em>“Weight clipping is a clearly terrible way to enforce a Lipschitz constraint”</em> (Oops!). WGAN still suffers from unstable training, slow convergence after weight clipping (when clipping window is too large), and vanishing gradients (when clipping window is too small).</p>
+
+<p>Some improvement, precisely replacing weight clipping with <strong>gradient penalty</strong>, has been discussed in <a href="https://arxiv.org/pdf/1704.00028.pdf">Gulrajani et al. 2017</a>. I will leave this to a future post.</p>
+
+<h2 id="example-create-new-pokemons">Example: Create New Pokemons!</h2>
+
+<p>Just for fun, I tried out <a href="https://github.com/carpedm20/DCGAN-tensorflow">carpedm20/DCGAN-tensorflow</a> on a tiny dataset, <a href="https://github.com/PokeAPI/sprites/">Pokemon sprites</a>. The dataset only has 900-ish pokemon images, including different levels of same pokemon species.</p>
+
+<p>Let’s check out what types of new pokemons the model is able to create. 
+Unfortunately due to the tiny training data, the new pokemons only have rough shapes without details. The shapes and colors do look better with more training epoches! Hooray!</p>
+
+<p class="center"><img src="/lil-log/assets/images/pokemon-GAN.png" alt="Pokemon GAN" /></p>
+<p><em>Fig. 10. Train <a href="https://github.com/carpedm20/DCGAN-tensorflow">carpedm20/DCGAN-tensorflow</a> on a set of Pokemon sprite images. The sample outputs are listed after training epoches = 7, 21, 49.</em></p>
+
+<p>If you are interested in a commented version of <a href="https://github.com/carpedm20/DCGAN-tensorflow">carpedm20/DCGAN-tensorflow</a> and how to modify it to train WGAN and WGAN with gradient penalty, check <a href="https://github.com/lilianweng/unified-gan-tensorflow">lilianweng/unified-gan-tensorflow</a>.</p>
+
+<hr />
+
+<p><em>If you notice mistakes and errors in this post, don’t hesitate to contact me at [lilian dot wengweng at gmail dot com] and I would be super happy to correct them right away!</em></p>
+
+<p>See you in the next post :D</p>
+
+<h2 id="references">References</h2>
+
+<p>[1] Goodfellow, Ian, et al. <a href="https://arxiv.org/pdf/1406.2661.pdf">“Generative adversarial nets.”</a> NIPS, 2014.</p>
+
+<p>[2] Tim Salimans, Ian Goodfellow, Wojciech Zaremba, Vicki Cheung, Alec Radford, and Xi Chen. <a href="http://papers.nips.cc/paper/6125-improved-techniques-for-training-gans.pdf">“Improved techniques for training gans.”</a> In Advances in Neural Information Processing Systems.</p>
+
+<p>[3] Martin Arjovsky and Léon Bottou. <a href="https://arxiv.org/pdf/1701.04862.pdf">“Towards principled methods for training generative adversarial networks.”</a> arXiv preprint arXiv:1701.04862 (2017).</p>
+
+<p>[4] Martin Arjovsky, Soumith Chintala, and Léon Bottou. <a href="https://arxiv.org/pdf/1701.07875.pdf">“Wasserstein GAN.”</a> arXiv preprint arXiv:1701.07875 (2017).</p>
+
+<p>[4] Ishaan Gulrajani, Faruk Ahmed, Martin Arjovsky, Vincent Dumoulin, Aaron Courville. <a href="https://arxiv.org/pdf/1704.00028.pdf">Improved training of wasserstein gans.</a> arXiv preprint arXiv:1704.00028 (2017).</p>
+
+<p>[5] <a href="http://robotics.stanford.edu/~scohen/research/emdg/emdg.html">Computing the Earth Mover’s Distance under Transformations</a></p>
+
+<p>[6] <a href="https://vincentherrmann.github.io/blog/wasserstein/">Wasserstein GAN and the Kantorovich-Rubinstein Duality</a></p>
+
+<p>[7] <a href="https://zhuanlan.zhihu.com/p/25071913">zhuanlan.zhihu.com/p/25071913</a></p>
+
+<p>[8] Ferenc Huszár. <a href="https://arxiv.org/pdf/1511.05101.pdf">“How (not) to Train your Generative Model: Scheduled Sampling, Likelihood, Adversary?.”</a> arXiv preprint arXiv:1511.05101 (2015).</p>
+
+  </div>
+
+
+  <div class="page-navigation">
+    
+      <a class="prev" href="/lil-log/2017/08/01/how-to-explain-the-prediction-of-a-machine-learning-model.html">&larr; How to Explain the Prediction of a Machine Learning Model?</a>
+    
+
+    
+      <a class="next" href="/lil-log/2017/09/28/anatomize-deep-learning-with-information-theory.html">Anatomize Deep Learning with Information Theory &rarr;</a>
+    
+  </div>
+
+  
+
+</article>
+
+      </div>
+    </main>
+
+    <div style="clear: both;"/>
+<footer class="site-footer">
+    2018 &copy; Built by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> and <a href="https://github.com/jekyll/minima/" target="_blank">minima</a> | View <a href="https://github.com/lilianweng/lil-log/tree/gh-pages" target="_blank">this</a> on Github
+
+    <p>
+        <a href="/lil-log/feed.xml" target="_blank">
+            <img src="/lil-log/assets/images/logo_rss.png" />
+        </a>
+        <a href="https://scholar.google.com/citations?user=dCa-pW8AAAAJ&hl=en&oi=ao" target="_blank">
+            <img src="/lil-log/assets/images/logo_scholar.png" />
+        </a>
+        <a href="https://github.com/lilianweng" target="_blank">
+            <img src="/lil-log/assets/images/logo_github.png" />
+        </a>
+        <a href="https://www.instagram.com/lilianweng/" target="_blank">
+            <img src="/lil-log/assets/images/logo_instagram.png" />
+        </a>
+    </p>
+</footer>
+
+
+  </body>
+
+</html>
+

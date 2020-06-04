@@ -1,2 +1,1 @@
-# mingrliu.github.io
-Mingrui Liu's Homepage
+# mercurial1101.github.io
