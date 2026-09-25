@@ -102,33 +102,24 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 			 <h3 class="clr1">Research</h3>
 			 <div class="skill_info">
 
-                My research addresses <b>the fundamental problem of efficiency in machine learning</b>, with a focus on <b>the interplay of optimization and learning</b>. I design algorithms with <b>provable performance guarantees</b> that tackle challenges arising in <b>modern learning paradigms</b>, spanning computational, statistical, and scalability dimensions. My research goal is to design provably efficient algorithms for modern machine learning problems with strong empirical performance. My research topics include: <br><br>
+                Our research addresses <b>the fundamental problem of efficiency in machine learning</b>, with a focus on <b>the interplay of optimization and learning</b>. We approach this problem at three connected levels: <b>algorithms, data, and systems</b>. Across these levels, we connect <b>mathematical principles and provable guarantees</b> with <b>practical algorithms and implementations</b> for modern machine learning problems, such as efficient foundation model training and inference. <br><br>
 
-                <li>  <b>Optimization for Machine Learning</b>: I design and analyze optimization algorithms with rigorous efficiency guarantees for modern learning problems, including the training of language models such as Transformers <a href="https://arxiv.org/pdf/2208.11195.pdf"><font color="#0000FF">[NeurIPS'22]</font></a>, hierarchical optimization (e.g., learning problems with minimax and bilevel formulation) [<a href="https://arxiv.org/pdf/2401.09587.pdf"><font color="#0000FF">ICLR'24 Spotlight</font></a>, <a href="https://openreview.net/pdf?id=36rWa8zVkh"><font color="#0000FF">ICML'24</font></a>, <a href="https://jmlr.csail.mit.edu/papers/volume22/20-533/20-533.pdf"><font color="#0000FF">JMLR'21</font></a>], optimization methods with adaptivity guarantees and its fundamental limits [<a href="https://openreview.net/pdf?id=ZjOXuAfS6l"><font color="#0000FF">ICLR'25</font></a>, <a href="https://openreview.net/forum?id=SJxIm0VtwH"><font color="#0000FF">ICLR'20</font></a>], and global convergence of neural network optimization [<a href="https://openreview.net/pdf?id=gVLKXT9JwG"><font color="#0000FF">NeurIPS'23</font></a>]. <br><br></li> 
+                <li> <b>Algorithm Level: Computation and Communication Efficiency</b>. We study how optimization and learning dynamics determine the computational and communication costs of learning. This includes understanding large-step gradient descent [<a href="https://arxiv.org/pdf/2602.12471"><font color="#0000FF">COLT'26</font></a>] and the complexity limits of adaptive methods [<a href="https://openreview.net/pdf?id=ZjOXuAfS6l"><font color="#0000FF">ICLR'25</font></a>], as well as when local updates can accelerate distributed learning [<a href="https://arxiv.org/pdf/2506.13974"><font color="#0000FF">ICML'25</font></a>]. We also develop efficient algorithms for hierarchical optimization, including bilevel problems [<a href="https://arxiv.org/pdf/2401.09587.pdf"><font color="#0000FF">ICLR'24 Spotlight</font></a>] and minimax problems [<a href="https://jmlr.csail.mit.edu/papers/volume22/20-533/20-533.pdf"><font color="#0000FF">JMLR'21</font></a>]. For foundation models, we develop non-Euclidean optimization methods that improve robustness to learning-rate tuning [<a href="https://arxiv.org/pdf/2510.09827"><font color="#0000FF">ICML'26</font></a>]. <br><br></li>
 
-                <li>  <b>Algorithmic Generalization and Feature Learning</b>: I study how optimization and learning dynamics shape both generalization performance and the emergence of features in modern models. My work characterizes the sample and computational complexity of problems such as pairwise learning [<a href="https://openreview.net/pdf?id=lHFCaetMa_"><font color="#0000FF">NeurIPS'21</font></a>], and develops feature learning theory for neural networks [<a href="https://openreview.net/pdf?id=yHRxnhKyEJ"><font color="#0000FF">ICML'24</font></a>]. <br><br></li> 
+                <li> <b>Data Level: Statistical Efficiency</b>. We study how optimization shapes generalization and feature learning [<a href="https://openreview.net/pdf?id=lHFCaetMa_"><font color="#0000FF">NeurIPS'21</font></a>, <a href="https://openreview.net/pdf?id=yHRxnhKyEJ"><font color="#0000FF">ICML'24</font></a>], and how to use training data more effectively. Our work includes bilevel optimization for coreset selection in continual learning [<a href="https://openreview.net/pdf?id=2dtU9ZbgSN"><font color="#0000FF">NeurIPS'23</font></a>], and data selection for foundation model pretraining that accounts for the long-term influence of training examples [<a href="https://arxiv.org/pdf/2510.06048"><font color="#0000FF">ICML'26</font></a>]. <br><br></li>
 
-                 <li> <b> Distributed and Scalable Learning</b>: I design scalable algorithms for distributed learning that remain efficient under real-world constraints, such as limited communication [<a href="https://arxiv.org/pdf/2205.05040.pdf"><font color="#0000FF">NeurIPS'22 Spotlight</font>], decentralization [<a href="https://arxiv.org/abs/1910.12999.pdf"><font color="#0000FF">NeurIPS'20</font></a>], and node unavailability [<a href="https://arxiv.org/pdf/2410.23131"><font color="#0000FF">NeurIPS'24</font></a>]. Recently, I focus on moving beyond black-box analyses to develop principled, fine-grained theoretical frameworks for distributed learning problems [<a href="https://arxiv.org/pdf/2506.13974"><font color="#0000FF">ICML'25</font></a>, <a href="https://arxiv.org/pdf/2501.13790"><font color="#0000FF">ICLR'25</font></a>]. <br><br></li> 
-
-
-                 <li> <b>Adaptive Learning</b>:   I work on designing algorithms that learn efficiently by selecting informative data and adapting to data distribution shifts. My work includes coreset selection for data-efficient training [<a href="https://openreview.net/pdf?id=2dtU9ZbgSN"><font color="#0000FF">NeurIPS'23</font></a>], continual learning without catastrophic forgetting [<a href="https://arxiv.org/abs/1909.11763"><font color="#0000FF">NeurIPS'20 Spotlight</font></a>]. <br><br></li> 
+                <li> <b>Systems Level: Hardware Efficiency</b>. We study how algorithm design and hardware characteristics jointly determine the efficiency of machine learning systems. Our goal is to translate mathematical insights into practical gains in runtime, memory efficiency, and scalability. We connect I/O complexity analysis with efficient algorithms and GPU kernel implementations for foundation model workloads, including exact higher-order differentiation through attention [<a href="https://arxiv.org/pdf/2609.24089"><font color="#0000FF">NeurIPS'26</font></a>]. <br><br></li>
 		    </div>
          </div>
 <div class="company">
                          <h3 class="clr1"> Recent News</h3>
                          <div class="skill_info">
                          <ul>
+                <li> (Sep 2026) One paper about <a href="https://arxiv.org/pdf/2609.24089"><font color="#0000FF">I/O-efficient exact backward-over-backward for softmax attention (FlashBoB)</font></a> was accepted by NeurIPS 2026. This is our group's first work on GPU kernel optimization. Congratulations to my student Anthony on his first paper, completed during his first year as a PhD student in our group!</li>
                   <li> (May 2026) <a href="https://arxiv.org/pdf/2602.12471"><font color="#0000FF">One paper</font></a> was accepted by COLT 2026! We show that, for low-dimensional separable data, gradient descent with arbitrarily large step sizes on logistic regression converges to arbitrarily accurate solutions in only a constant number of iterations. This is a surprising and exciting result for us. Congratulations to my student Michael!
                 <li> (April 2026) Two papers were accepted by ICML 2026. Topics include data selection in large language model pretraining and non-Euclidean gradient descent optimization methods. Congratulations to my students Michael, Jie and Rui!
                 <li> (April 2026) My very first PhD student, <a href="https://mtcrawshaw.github.io"><font color="#0000FF">Michael Crawshaw</font></a>, successfully defended his PhD dissertation on the mathematical foundations of distributed optimization for machine learning. His disseration won the outstanding dissertation award in the computer science department. He will join Flatiron Institute as a postdoc after graduation. Congratulations to Dr. Crawshaw! 
                 <li> (Jan 2026) One paper about bilevel optimization under uniform convexity was accepted by ICLR 2026. Congratulations to my students Yuman, Xiaochuan and Jie!
-                <li> (Nov 2025) I will be serving as an Area Chair for ICLR 2026, AISTATS 2026 and ICML 2026.
-                <li> (Sep 2025) One paper about adaptive hierarchical optimization was accepted by NeurIPS 2025. Congratulations to my students Xiaochuan and Jie!
-                <li> (Aug 2025) Glad to give an invited TedX talk about "how language models learn". Check the <a href="https://www.youtube.com/watch?v=_QNvc6npl5E"><font color="#0000FF">video</font></a>.
-                <li> (May 2025) One paper was accepted by ICML 2025. Congratulations to my student Michael and our collaborators!
-                <li> (March/April 2025) Glad to give invited talks about "Beyond Black-Box Analysis: Understanding the Role of Local Updates in Distributed Learning" at UMN and KAUST. Check the <a href="https://www.youtube.com/watch?v=lncMHLmOopg"><font color="#0000FF">video</font></a>.
-                <li> (Feb 2025) I will be serving as an Area Chair for NeurIPS 2025.
-                <li> (Jan 2025) Two papers were accepted by ICLR 2025. Congratulations to my student Michael and our collaborators!
 
                 <li><a href="news.html"><font color="#0000FF"> More News</a></font> </li> 
 
@@ -218,6 +209,13 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
           To appear in the 39th <em>Conference on Uncertainty in Artificial Intelligence</em>, 2023. (<b>UAI</b> 2023) 
        <br><br>
      </li>-->
+
+     <li>
+                (<FONT COLOR="#FC0404">New! </font>)  <a href="https://arxiv.org/pdf/2609.24089"><font color="#0000FF">FlashBoB: I/O-Efficient Exact Backward-over-Backward for Softmax Attention</font></a><br>
+                       Anthony Givans<sup>#</sup>, Michael Crawshaw<sup>#</sup>, <b>Mingrui Liu</b>.<br>
+          40th Conference on <em>Neural Information Processing Systems</em>, 2026. (<b>NeurIPS</b> 2026)
+       <br><br>
+     </li>
 
      <li>
                 (<FONT COLOR="#FC0404">New! </font>)  <a href="https://arxiv.org/pdf/2602.12471"><font color="#0000FF">Tight Bounds for Logistic Regression with Large Stepsize Gradient Descent in Low Dimension</font></a><br>
@@ -456,7 +454,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 
          
      <div class="copywrite">
-			 <p>Last update: 08-25-2026</p>
+			 <p>Last update: 09-25-2026</p>
 		 </div>
 
 
